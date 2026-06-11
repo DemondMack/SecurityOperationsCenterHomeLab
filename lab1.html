@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOC Foundation Lab — Demond Mack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+--bg:#0a0e1a;
+--bg-card:#0d1220;
+--bg-elevated:#111828;
+--border:#1a2240;
+--border-light:#243060;
+--cyan:#00d4ff;
+--cyan-dim:#004d5e;
+--cyan-glow:rgba(0,212,255,0.08);
+--text:#e8f0ff;
+--text-sec:#6080a0;
+--text-muted:#2a3a50;
+--green:#00ff87;
+--green-dim:rgba(0,255,135,0.1);
+--red:#ff4a4a;
+--red-dim:rgba(255,74,74,0.1);
+--amber:#ffaa00;
+--amber-dim:rgba(255,170,0,0.1);
+--mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(10,14,26,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-inner{max-width:1100px;margin:0 auto;height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem}
+.nav-brand{font-family:var(--mono);font-size:13px;color:var(--cyan);letter-spacing:0.05em;text-decoration:none}
+.nav-links{display:flex;gap:0;list-style:none;align-items:center}
+.nav-links a{font-size:12px;color:var(--text-sec);text-decoration:none;letter-spacing:0.05em;padding:6px 16px;border-radius:4px;transition:all 0.2s;display:block}
+.nav-links a:hover{color:var(--cyan);background:var(--cyan-glow)}
+.nav-dropdown{position:relative}
+.nav-dropdown-btn{font-size:12px;color:var(--text-sec);letter-spacing:0.05em;padding:6px 16px;border-radius:4px;transition:all 0.2s;cursor:pointer;display:flex;align-items:center;gap:6px;background:none;border:none;font-family:'Inter',sans-serif}
+.nav-dropdown-btn:hover{color:var(--cyan);background:var(--cyan-glow)}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;min-width:220px;padding:6px;z-index:300;margin-top:4px}
+.nav-dropdown:hover .nav-dropdown-menu{display:block}
+.nav-dropdown-item{display:block;padding:8px 12px;font-size:12px;color:var(--text-sec);text-decoration:none;border-radius:4px;transition:all 0.2s;font-family:var(--mono)}
+.nav-dropdown-item:hover{color:var(--cyan);background:var(--cyan-glow)}
+.nav-dropdown-item.active{color:var(--cyan);background:var(--cyan-glow)}
+.nav-dropdown-label{font-size:10px;color:var(--text-muted);padding:6px 12px 2px;letter-spacing:0.1em;text-transform:uppercase}
+
+/* HERO */
+.hero{min-height:60vh;display:flex;align-items:center;position:relative;overflow:hidden;padding-top:54px;border-bottom:1px solid var(--border)}
+.hero-bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none}
+.hero-bg-glow{position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 30% 50%,rgba(0,212,255,0.05) 0%,transparent 70%);pointer-events:none}
+.hero-content{position:relative;z-index:10;max-width:1100px;margin:0 auto;padding:3rem 2rem;width:100%}
+.hero-back{font-family:var(--mono);font-size:11px;color:var(--text-muted);letter-spacing:0.1em;margin-bottom:1.5rem;display:flex;align-items:center;gap:8px}
+.hero-back a{color:var(--text-muted);text-decoration:none;transition:color 0.2s}
+.hero-back a:hover{color:var(--cyan)}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;color:var(--cyan);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:1rem;display:flex;align-items:center;gap:12px}
+.hero-eyebrow::before{content:'';display:block;width:28px;height:1px;background:var(--cyan)}
+.hero-name{font-size:clamp(1.8rem,5vw,3.5rem);font-weight:600;color:var(--text);letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.5rem}
+.hero-sub{font-size:clamp(0.9rem,2vw,1.1rem);font-weight:300;color:var(--cyan);letter-spacing:0.04em;margin-bottom:1.25rem}
+.hero-desc{font-size:14px;color:var(--text-sec);max-width:580px;line-height:1.85;margin-bottom:2rem}
+.hero-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:2rem}
+.hero-tag{font-family:var(--mono);font-size:10px;padding:4px 10px;border-radius:3px;letter-spacing:0.05em;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-muted)}
+.hero-tag.hi{border-color:var(--cyan-dim);color:var(--cyan)}
+.hero-stats{display:flex;gap:2rem;flex-wrap:wrap}
+.h-stat-num{font-family:var(--mono);font-size:1.6rem;font-weight:500;color:var(--cyan);line-height:1}
+.h-stat-label{font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-top:6px}
+
+section{padding:4rem 2rem}
+.sec-inner{max-width:1100px;margin:0 auto}
+.sec-eye{font-family:var(--mono);font-size:10px;color:var(--cyan);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:0.75rem}
+.sec-title{font-size:clamp(1.4rem,3vw,1.9rem);font-weight:500;color:var(--text);margin-bottom:1rem;letter-spacing:-0.01em}
+.sec-sub{font-size:14px;color:var(--text-sec);max-width:580px;line-height:1.85;margin-bottom:3rem}
+
+/* PIPELINE */
+.pipe-block{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:18px 20px;margin-bottom:12px}
+.pipe-title{font-family:var(--mono);font-size:10px;color:var(--text-muted);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:12px}
+.pipe-flow{display:flex;align-items:center;flex-wrap:wrap;gap:0}
+.pipe-step{background:var(--bg-elevated);border:1px solid var(--border);border-radius:3px;padding:6px 12px;font-size:11px;font-family:var(--mono);color:var(--text-sec);white-space:nowrap}
+.pipe-step.hi{border-color:var(--cyan-dim);color:var(--cyan)}
+.pipe-arrow{color:var(--text-muted);font-size:12px;padding:0 6px;flex-shrink:0}
+
+/* STACK */
+.stack-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-top:2rem}
+.stack-item{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px;display:flex;align-items:center;gap:10px;transition:border-color 0.2s}
+.stack-item:hover{border-color:var(--cyan-dim)}
+.si-icon{width:34px;height:34px;border-radius:5px;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;font-family:var(--mono);color:var(--cyan);flex-shrink:0;border:1px solid var(--border)}
+.si-name{font-size:12px;font-weight:500;color:var(--text)}
+.si-role{font-size:10px;color:var(--text-muted);margin-top:1px}
+
+/* CASE CARDS */
+.case-list{display:flex;flex-direction:column;gap:16px}
+.case-card{background:var(--bg-card);border:1px solid var(--border);border-radius:8px;overflow:hidden;transition:border-color 0.2s}
+.case-card:hover{border-color:var(--border-light)}
+.case-head{padding:22px 26px;cursor:pointer;display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;user-select:none}
+.case-head:hover{background:var(--bg-elevated)}
+.case-tag{font-family:var(--mono);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin-bottom:7px}
+.case-title{font-size:16px;font-weight:500;color:var(--text);margin-bottom:9px}
+.badges{display:flex;gap:5px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:2px;letter-spacing:0.03em;font-family:var(--mono)}
+.b-red{background:var(--red-dim);color:var(--red);border:1px solid rgba(255,74,74,0.25)}
+.b-amber{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,170,0,0.25)}
+.b-blue{background:rgba(58,123,213,0.1);color:#6ba3e8;border:1px solid rgba(58,123,213,0.25)}
+.b-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(0,255,135,0.25)}
+.b-cyan{background:var(--cyan-glow);color:var(--cyan);border:1px solid rgba(0,212,255,0.2)}
+.b-purple{background:rgba(150,80,255,0.1);color:#b080ff;border:1px solid rgba(150,80,255,0.25)}
+.case-chevron{color:var(--text-muted);font-size:16px;transition:transform 0.3s;flex-shrink:0;margin-top:2px;font-family:var(--mono)}
+.case-card.open .case-chevron{transform:rotate(180deg)}
+.case-body{display:none;border-top:1px solid var(--border)}
+.case-card.open .case-body{display:block}
+
+/* TABS */
+.tab-bar{display:flex;border-bottom:1px solid var(--border);padding:0 26px;background:var(--bg-elevated);overflow-x:auto}
+.tb{font-size:11px;font-weight:500;padding:12px 16px;color:var(--text-muted);cursor:pointer;border:none;background:none;letter-spacing:0.08em;text-transform:uppercase;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all 0.2s;font-family:var(--mono);white-space:nowrap;flex-shrink:0}
+.tb:hover{color:var(--text-sec)}
+.tb.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.tab-content{padding:22px 26px}
+.tp{display:none}
+.tp.on{display:block}
+
+/* CONTENT */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:10px;margin-bottom:18px}
+.sbox{background:var(--bg-elevated);border:1px solid var(--border);border-radius:5px;padding:12px;text-align:center}
+.sbox-num{font-family:var(--mono);font-size:1.3rem;font-weight:500;color:var(--cyan)}
+.sbox.g .sbox-num{color:var(--green)}
+.sbox.r .sbox-num{color:var(--red)}
+.sbox-lab{font-size:9px;color:var(--text-muted);letter-spacing:0.08em;text-transform:uppercase;margin-top:3px}
+.body-text{font-size:13px;color:var(--text-sec);line-height:1.8;margin-bottom:14px}
+.find-tag{display:inline-block;background:rgba(0,255,135,0.07);border:1px solid rgba(0,255,135,0.2);color:var(--green);font-size:10px;font-weight:500;padding:3px 9px;border-radius:2px;letter-spacing:0.08em;margin-bottom:6px;font-family:var(--mono)}
+.sh{font-size:10px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-muted);margin:14px 0 8px;font-family:var(--mono)}
+.code-block{background:rgba(0,0,0,0.4);border:1px solid var(--border);border-radius:3px;padding:10px 14px;font-family:var(--mono);font-size:11px;color:#5090c0;overflow-x:auto;margin:8px 0;line-height:1.6}
+
+.fitem{border:1px solid var(--border);border-radius:4px;margin-bottom:6px;overflow:hidden;background:var(--bg-elevated)}
+.fitem-head{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;cursor:pointer;user-select:none;transition:background 0.15s}
+.fitem-head:hover{background:rgba(0,212,255,0.04)}
+.fitem-arrow{color:var(--cyan);font-size:10px;margin-top:3px;flex-shrink:0;transition:transform 0.2s;font-family:var(--mono)}
+.fitem.open .fitem-arrow{transform:rotate(90deg)}
+.fitem-text{font-size:13px;color:var(--text-sec);line-height:1.6;flex:1}
+.fitem-body{display:none;padding:0 12px 10px 32px;border-top:1px solid var(--border)}
+.fitem.open .fitem-body{display:block}
+.fitem-cmd{background:rgba(0,0,0,0.5);border:1px solid var(--border);border-left:2px solid var(--cyan);border-radius:0 3px 3px 0;padding:8px 12px;font-family:var(--mono);font-size:11px;color:#5090c0;margin-top:8px;overflow-x:auto;line-height:1.6}
+.fitem-cmd-label{font-size:10px;color:var(--text-muted);margin-bottom:4px;font-family:var(--mono);letter-spacing:0.05em}
+
+.ioc-box{background:rgba(255,74,74,0.04);border:1px solid rgba(255,74,74,0.15);border-radius:3px;padding:10px 14px;margin:8px 0}
+.ioc-item{font-size:11px;font-family:var(--mono);color:#c06060;margin-bottom:3px;line-height:1.5}
+.step-box{background:var(--bg-elevated);border:1px solid var(--border);border-left:2px solid var(--amber);border-radius:0 3px 3px 0;padding:10px 14px;margin:8px 0}
+.step-item{font-size:12px;color:var(--text-sec);margin-bottom:4px;line-height:1.6}
+.step-item strong{color:var(--amber)}
+.mtable{width:100%;border-collapse:collapse;font-size:11px}
+.mtable th{text-align:left;padding:7px 10px;background:var(--bg-elevated);color:var(--text-muted);font-weight:500;letter-spacing:0.05em;border-bottom:1px solid var(--border);font-family:var(--mono)}
+.mtable td{padding:7px 10px;border-bottom:1px solid var(--border);color:var(--text-sec);vertical-align:top}
+.mtable td:first-child{font-family:var(--mono);color:var(--cyan);white-space:nowrap}
+
+/* ATTACK CHAIN */
+.tl{display:flex;flex-direction:column}
+.tl-item{display:flex;gap:14px;padding-bottom:18px;position:relative}
+.tl-item::before{content:'';position:absolute;left:6px;top:17px;bottom:0;width:1px;background:var(--border)}
+.tl-item:last-child::before{display:none}
+.tl-dot{width:13px;height:13px;border-radius:50%;flex-shrink:0;margin-top:2px;border:2px solid var(--bg-card)}
+.tl-body{flex:1}
+.tl-phase{font-family:var(--mono);font-size:9px;color:var(--text-muted);margin-bottom:2px;letter-spacing:0.08em;text-transform:uppercase}
+.tl-title{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px}
+.tl-detail{font-size:11px;color:var(--text-sec);line-height:1.6}
+
+/* EVIDENCE */
+.ev-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.ev-slot{background:var(--bg-elevated);border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.ev-img-placeholder{height:140px;background:var(--bg);display:flex;align-items:center;justify-content:center;border-bottom:1px solid var(--border);overflow:hidden;cursor:pointer;position:relative}
+.ev-img-placeholder img{width:100%;height:100%;object-fit:cover;filter:brightness(1);transition:transform 0.2s,filter 0.2s}
+.ev-img-placeholder:hover img{transform:scale(1.03);filter:brightness(1.15)}
+.ev-img-placeholder::after{content:'⤢';position:absolute;bottom:6px;right:8px;font-size:13px;color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.6);padding:2px 6px;border-radius:3px;opacity:0;transition:opacity 0.2s;pointer-events:none}
+.ev-img-placeholder:hover::after{opacity:1}
+.ev-caption{padding:8px 10px}
+.ev-caption-title{font-size:11px;font-weight:500;color:var(--text);margin-bottom:2px}
+.ev-caption-sub{font-size:10px;color:var(--text-muted)}
+
+/* LIGHTBOX */
+#lightbox{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.92);align-items:center;justify-content:center;cursor:pointer}
+#lightbox.show{display:flex}
+#lightbox-img{max-width:92vw;max-height:88vh;border-radius:4px;border:1px solid var(--border-light);box-shadow:0 0 60px rgba(0,0,0,0.8);cursor:default}
+#lightbox-caption{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.45);text-align:center;white-space:nowrap}
+#lightbox-close{position:absolute;top:16px;right:20px;font-family:var(--mono);font-size:14px;color:rgba(255,255,255,0.5);cursor:pointer;background:none;border:none;transition:color 0.2s}
+#lightbox-close:hover{color:var(--cyan)}
+
+/* CONTACT STRIP */
+.contact-strip{display:flex;gap:12px;flex-wrap:wrap;margin-top:2rem}
+.contact-card{background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:14px 18px;text-decoration:none;display:block;transition:border-color 0.2s}
+.contact-card:hover{border-color:var(--cyan-dim)}
+.cc-label{font-size:10px;color:var(--text-muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px;font-family:var(--mono)}
+.cc-value{font-size:12px;color:var(--cyan);font-weight:500}
+
+footer{border-top:1px solid var(--border);padding:1.5rem 2rem;text-align:center}
+footer p{font-size:11px;color:var(--text-muted);font-family:var(--mono)}
+
+.reveal{opacity:0;transform:translateY(16px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.vis{opacity:1;transform:none}
+
+@media(max-width:768px){
+.nav-links{display:none}
+.hero-stats{gap:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="index.html" class="nav-brand">DM // SOC</a>
+    <ul class="nav-links">
+      <li><a href="#environment">Environment</a></li>
+      <li><a href="#investigations">Investigations</a></li>
+      <li><a href="#contact">Contact</a></li>
+      <li class="nav-dropdown">
+        <button class="nav-dropdown-btn">Projects ▾</button>
+        <div class="nav-dropdown-menu">
+          <div class="nav-dropdown-label">Portfolio Projects</div>
+          <a href="index.html" class="nav-dropdown-item">Enterprise SOC Lab</a>
+          <a href="lab1.html" class="nav-dropdown-item active">SOC Foundation Lab</a>
+        </div>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" onclick="closeLightbox(event)">
+  <button id="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('show')">✕ close</button>
+  <img id="lightbox-img" src="" alt="">
+  <div id="lightbox-caption"></div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="hero-bg-glow"></div>
+  <div class="hero-content">
+    <div class="hero-back"><a href="index.html">← Enterprise SOC Lab</a> <span>/ SOC Foundation Lab</span></div>
+    <div class="hero-eyebrow">Project 01</div>
+    <div class="hero-name">SOC Foundation Lab</div>
+    <div class="hero-sub">ELK Stack &nbsp;|&nbsp; Mythic C2 Investigation &nbsp;|&nbsp; Elastic Defend EDR</div>
+    <div class="hero-desc">A cloud-based SOC environment built on Vultr using the ELK stack as the SIEM and osTicket for incident management. Simulated a full attack chain using Mythic C2 — from initial RDP brute force through discovery, defense evasion, agent execution, C2 establishment, and file exfiltration — then investigated and responded using Elastic telemetry and EDR.</div>
+    <div class="hero-tags">
+      <span class="hero-tag hi">ELK Stack</span>
+      <span class="hero-tag hi">Elastic Defend</span>
+      <span class="hero-tag hi">Mythic C2</span>
+      <span class="hero-tag">osTicket</span>
+      <span class="hero-tag">Vultr Cloud</span>
+      <span class="hero-tag">Sysmon</span>
+      <span class="hero-tag">Kali Linux</span>
+      <span class="hero-tag">Windows Server 2022</span>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="h-stat-num">6</div><div class="h-stat-label">Attack phases simulated</div></div>
+      <div class="hero-stat"><div class="h-stat-num">3</div><div class="h-stat-label">Detection pipelines</div></div>
+      <div class="hero-stat"><div class="h-stat-num">1</div><div class="h-stat-label">Full C2 chain investigated</div></div>
+      <div class="hero-stat"><div class="h-stat-num">EDR</div><div class="h-stat-label">Elastic Defend deployed</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ENVIRONMENT -->
+<section id="environment" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="sec-inner">
+    <div class="sec-eye reveal">Infrastructure</div>
+    <div class="sec-title reveal">SOC Environment</div>
+    <div class="sec-sub reveal">Cloud-based SOC built on Vultr with ELK stack for log ingestion and alerting, Fleet Server for centralized agent management, and osTicket for automated incident ticketing.</div>
+
+    <div class="pipe-block reveal">
+      <div class="pipe-title">Pipeline 01 — Endpoint Telemetry</div>
+      <div class="pipe-flow">
+        <div class="pipe-step">Windows Events</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Sysmon</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Elastic Agent</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step">Fleet Server</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Elasticsearch</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Kibana Alert</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">osTicket</div>
+      </div>
+    </div>
+    <div class="pipe-block reveal">
+      <div class="pipe-title">Pipeline 02 — SSH Brute Force</div>
+      <div class="pipe-flow">
+        <div class="pipe-step">Ubuntu /var/log/auth.log</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Elastic Agent</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Elasticsearch</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Kibana Alert</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">osTicket</div>
+      </div>
+    </div>
+    <div class="pipe-block reveal">
+      <div class="pipe-title">Pipeline 03 — EDR Response</div>
+      <div class="pipe-flow">
+        <div class="pipe-step">Malicious File Execution</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Elastic Defend</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step">Prevention Event</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Elasticsearch</div><div class="pipe-arrow">→</div>
+        <div class="pipe-step hi">Host Isolation</div>
+      </div>
+    </div>
+
+    <div class="stack-grid reveal">
+      <div class="stack-item"><div class="si-icon">ES</div><div><div class="si-name">Elasticsearch</div><div class="si-role">SIEM / Log Storage</div></div></div>
+      <div class="stack-item"><div class="si-icon">KB</div><div><div class="si-name">Kibana</div><div class="si-role">Dashboards / Alerts</div></div></div>
+      <div class="stack-item"><div class="si-icon">ED</div><div><div class="si-name">Elastic Defend</div><div class="si-role">EDR</div></div></div>
+      <div class="stack-item"><div class="si-icon">OT</div><div><div class="si-name">osTicket</div><div class="si-role">Incident Ticketing</div></div></div>
+      <div class="stack-item"><div class="si-icon">MC</div><div><div class="si-name">Mythic C2</div><div class="si-role">Attack Simulation</div></div></div>
+      <div class="stack-item"><div class="si-icon">VT</div><div><div class="si-name">Vultr Cloud</div><div class="si-role">Infrastructure</div></div></div>
+      <div class="stack-item"><div class="si-icon">SY</div><div><div class="si-name">Sysmon</div><div class="si-role">Endpoint Telemetry</div></div></div>
+      <div class="stack-item"><div class="si-icon">KL</div><div><div class="si-name">Kali Linux</div><div class="si-role">Attack Platform</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- INVESTIGATIONS -->
+<section id="investigations">
+  <div class="sec-inner">
+    <div class="sec-eye reveal">Case Studies</div>
+    <div class="sec-title reveal">SOC Investigations</div>
+    <div class="sec-sub reveal">Three investigations covering SSH and RDP brute force detection, a full Mythic C2 attack chain from initial access to exfiltration, and EDR-driven endpoint response using Elastic Defend.</div>
+    <div class="case-list">
+
+      <!-- CASE 1: SSH/RDP BRUTE FORCE -->
+      <div class="case-card reveal" id="c1">
+        <div class="case-head" onclick="toggleCase('c1')">
+          <div style="flex:1">
+            <div class="case-tag">Case Study 01 — Network / Endpoint</div>
+            <div class="case-title">SSH &amp; RDP Brute Force Detection</div>
+            <div class="badges">
+              <span class="badge b-red">High Severity</span>
+              <span class="badge b-amber">T1110.001</span>
+              <span class="badge b-green">Detected &amp; Alerted</span>
+              <span class="badge b-cyan">Real Attack Telemetry</span>
+            </div>
+          </div>
+          <span class="case-chevron">▼</span>
+        </div>
+        <div class="case-body">
+          <div class="tab-bar">
+            <button class="tb on" onclick="switchTab(event,'c1','exec')">Executive Summary</button>
+            <button class="tb" onclick="switchTab(event,'c1','tech')">Technical Deep Dive</button>
+            <button class="tb" onclick="switchTab(event,'c1','breach')">If Breach Confirmed</button>
+            <button class="tb" onclick="switchTab(event,'c1','ev')">Evidence</button>
+          </div>
+          <div class="tab-content">
+            <div class="tp on" id="c1-exec">
+              <p class="body-text">Both SSH and RDP services were exposed to the internet on Vultr-hosted servers, immediately attracting real external brute force attacks. Failed authentication logs from /var/log/auth.log on the Ubuntu SSH server and Windows Event ID 4625 on the RDP server were ingested into Elasticsearch via Elastic Agent and Fleet Server.</p>
+              <p class="body-text">Custom Kibana alerts were created for both services — triggering after 5 failed login attempts within 5 minutes. Geographic dashboards visualized attack sources in real time. osTicket was integrated with Elasticsearch via API key to automatically generate tickets when alerts fired.</p>
+              <div class="find-tag">ANALYST FINDING</div>
+              <p class="body-text">Multiple external IPs confirmed actively brute forcing both SSH and RDP services. Threat intelligence enrichment via AbuseIPDB and GreyNoise confirmed malicious intent. No successful unauthorized logons detected. Firewall rules updated to restrict access.</p>
+            </div>
+            <div class="tp" id="c1-tech">
+              <div class="sh">SSH Detection — Kibana Query</div>
+              <div class="code-block">agent.name: "my-ubuntu-ssh" AND system.auth.ssh.event: "Failed"
+AND system.auth.user: "root"
+// Alert threshold: 5 failures in 5 minutes
+// Dashboard: SSH Failed Activity — GeoIP map of source IPs</div>
+              <div class="sh">RDP Detection — Event ID 4625</div>
+              <div class="code-block">event.code: "4625"
+// Logon failure — wrong username or password
+// Key fields: source.ip, winlog.event_data.TargetUserName
+// Alert threshold: 5 failures in 5 minutes</div>
+              <div class="sh">Investigation Findings — click to expand analyst actions</div>
+              <div class="fitem" id="fi-c1-1">
+                <div class="fitem-head" onclick="toggleFitem('fi-c1-1')"><span class="fitem-arrow">▶</span><span class="fitem-text">Multiple external IPs identified targeting root account via SSH brute force</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — extract attacker IPs from SSH auth logs</div>
+                  <div class="fitem-cmd">agent.name: "my-ubuntu-ssh" AND system.auth.ssh.event: "Failed"
+| extract source.ip, system.auth.user
+| stats count by source.ip
+| sort count desc
+// Cross-reference each IP on AbuseIPDB and GreyNoise</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c1-2">
+                <div class="fitem-head" onclick="toggleFitem('fi-c1-2')"><span class="fitem-arrow">▶</span><span class="fitem-text">RDP failed logons analyzed — source IPs and usernames extracted for investigation</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — RDP failed logon analysis</div>
+                  <div class="fitem-cmd">event.code: "4625"
+// Add fields: source.ip, winlog.event_data.TargetUserName
+// Save as "RDP Failed Activity"
+// Check for any 4624 success events from same IPs</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c1-3">
+                <div class="fitem-head" onclick="toggleFitem('fi-c1-3')"><span class="fitem-arrow">▶</span><span class="fitem-text">osTicket automatically created incidents when alert thresholds were exceeded</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// osTicket integration — Elasticsearch alert webhook</div>
+                  <div class="fitem-cmd"># Elasticsearch alert action → HTTP POST to osTicket API
+# API key configured in Kibana connector
+# Auto-populates ticket with: alert name, source IP,
+# timestamp, affected host, event count
+# Analyst assigned for triage and investigation</div>
+                </div>
+              </div>
+              <div class="sh">MITRE ATT&amp;CK</div>
+              <table class="mtable">
+                <thead><tr><th>ID</th><th>Technique</th><th>Evidence</th></tr></thead>
+                <tbody>
+                  <tr><td>T1110.001</td><td>Brute Force: Password Guessing</td><td>Multiple failed SSH and RDP authentication attempts from external IPs</td></tr>
+                  <tr><td>T1133</td><td>External Remote Services</td><td>SSH port 22 and RDP port 3389 targeted as external access vectors</td></tr>
+                  <tr><td>T1078</td><td>Valid Accounts</td><td>Root account targeted on SSH server — high value target</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tp" id="c1-breach">
+              <p class="body-text">No breach occurred. The following documents what would have triggered escalation and the exact response actions.</p>
+              <div class="sh">IOCs That Would Have Indicated Compromise</div>
+              <div class="ioc-box">
+                <div class="ioc-item">▶ Event ID 4624 or SSH "Accepted" from any attacker IP</div>
+                <div class="ioc-item">▶ New process spawned immediately after successful logon from external IP</div>
+                <div class="ioc-item">▶ Outbound connection from server to attacker IP after successful auth</div>
+                <div class="ioc-item">▶ New user account created — persistence mechanism</div>
+                <div class="ioc-item">▶ Sysmon Event ID 3 — network connection to unknown external IP</div>
+              </div>
+              <div class="sh">Response Actions</div>
+              <div class="fitem" id="fi-c1-b1">
+                <div class="fitem-head" onclick="toggleFitem('fi-c1-b1')"><span class="fitem-arrow">▶</span><span class="fitem-text"><strong style="color:var(--amber)">Step 1:</strong> Block attacker IP at Vultr firewall immediately</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Vultr — add firewall rule to block attacker IP</div>
+                  <div class="fitem-cmd"># Vultr firewall group — add inbound deny rule
+# Source IP: [attacker IP]
+# Ports: All
+# Action: Drop
+# Also configure Fail2Ban on Ubuntu SSH server:
+fail2ban-client set sshd banip [attacker_ip]</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c1-b2">
+                <div class="fitem-head" onclick="toggleFitem('fi-c1-b2')"><span class="fitem-arrow">▶</span><span class="fitem-text"><strong style="color:var(--amber)">Step 2:</strong> Check for successful SSH logons and active sessions</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Linux — check for active sessions and recent successful logins</div>
+                  <div class="fitem-cmd">who          # active sessions
+last         # recent login history
+grep "Accepted" /var/log/auth.log | tail -20
+# Check for new cron jobs or authorized_keys modifications
+cat /root/.ssh/authorized_keys
+crontab -l</div>
+                </div>
+              </div>
+            </div>
+            <div class="tp" id="c1-ev">
+              <p class="body-text" style="margin-bottom:16px;">Evidence collected — Kibana dashboards, alert configuration, osTicket integration, and threat intelligence.</p>
+              <div class="ev-grid">
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/ZgyesUv.jpeg','Ubuntu SSH Authentication Logs — Failed Login Attempts')"><img src="https://i.imgur.com/ZgyesUv.jpeg" alt="SSH Auth Logs"></div><div class="ev-caption"><div class="ev-caption-title">SSH Auth Logs</div><div class="ev-caption-sub">Failed root login attempts extracted from auth.log</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/SzLhOqG.jpeg','SSH Attacker IPs Extracted')"><img src="https://i.imgur.com/SzLhOqG.jpeg" alt="SSH Attacker IPs"></div><div class="ev-caption"><div class="ev-caption-title">Attacker IPs Extracted</div><div class="ev-caption-sub">grep and cut commands isolating source IPs</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/Pe2DPyq.jpeg','Kibana SSH Failed Activity Dashboard')"><img src="https://i.imgur.com/Pe2DPyq.jpeg" alt="SSH Dashboard"></div><div class="ev-caption"><div class="ev-caption-title">SSH Failed Activity</div><div class="ev-caption-sub">Kibana dashboard — GeoIP map of attack sources</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/9TMIaOU.jpeg','RDP Failed Activity Dashboard')"><img src="https://i.imgur.com/9TMIaOU.jpeg" alt="RDP Dashboard"></div><div class="ev-caption"><div class="ev-caption-title">RDP Failed Activity</div><div class="ev-caption-sub">Event ID 4625 — failed logon visualization</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/YAkU8Yr.jpeg','osTicket — Auto-Generated Incident')"><img src="https://i.imgur.com/YAkU8Yr.jpeg" alt="osTicket"></div><div class="ev-caption"><div class="ev-caption-title">osTicket Incident</div><div class="ev-caption-sub">Auto-generated ticket from Elasticsearch alert</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/R7YriON.jpeg','osTicket Integration Configuration')"><img src="https://i.imgur.com/R7YriON.jpeg" alt="osTicket Config"></div><div class="ev-caption"><div class="ev-caption-title">osTicket Integration</div><div class="ev-caption-sub">API key configuration and alert connector</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CASE 2: MYTHIC C2 -->
+      <div class="case-card reveal" id="c2">
+        <div class="case-head" onclick="toggleCase('c2')">
+          <div style="flex:1">
+            <div class="case-tag">Case Study 02 — C2 / Threat Hunting</div>
+            <div class="case-title">Mythic C2 Full Attack Chain Investigation</div>
+            <div class="badges">
+              <span class="badge b-red">Critical</span>
+              <span class="badge b-purple">Mythic C2</span>
+              <span class="badge b-amber">T1059.001 · T1041 · T1003</span>
+              <span class="badge b-green">Detected &amp; Investigated</span>
+            </div>
+          </div>
+          <span class="case-chevron">▼</span>
+        </div>
+        <div class="case-body">
+          <div class="tab-bar">
+            <button class="tb on" onclick="switchTab(event,'c2','exec')">Executive Summary</button>
+            <button class="tb" onclick="switchTab(event,'c2','tech')">Technical Deep Dive</button>
+            <button class="tb" onclick="switchTab(event,'c2','breach')">If Breach Confirmed</button>
+            <button class="tb" onclick="switchTab(event,'c2','ev')">Evidence</button>
+          </div>
+          <div class="tab-content">
+            <div class="tp on" id="c2-exec">
+              <div class="stats-row">
+                <div class="sbox"><div class="sbox-num">6</div><div class="sbox-lab">Attack phases</div></div>
+                <div class="sbox"><div class="sbox-num r"><div class="sbox-num">C2</div></div><div class="sbox-lab">Session established</div></div>
+                <div class="sbox"><div class="sbox-num">1</div><div class="sbox-lab">File exfiltrated</div></div>
+                <div class="sbox g"><div class="sbox-num">✓</div><div class="sbox-lab">Fully detected</div></div>
+              </div>
+              <p class="body-text">A controlled red team exercise simulated a full adversary attack chain using Mythic C2 framework and Kali Linux as the attack platform. The attack progressed through 6 phases: RDP brute force for initial access, discovery commands, disabling Windows Defender for defense evasion, downloading and executing a Mythic Apollo agent via PowerShell, establishing a C2 session, and exfiltrating a simulated password file.</p>
+              <p class="body-text">The investigation used Sysmon telemetry and Elasticsearch queries to reconstruct the full attack timeline. Process GUIDs were used to correlate process creation, network connections, and file operations to the Apollo C2 agent. A custom Kibana alert and suspicious activity dashboard were created to detect future C2 activity.</p>
+              <div class="find-tag">ANALYST FINDING</div>
+              <p class="body-text">Full attack chain detected and documented. Apollo agent identified via SHA-256 hash and original filename. C2 network connections traced to Mythic server. File exfiltration confirmed via process GUID correlation. All 6 attack phases mapped to MITRE ATT&amp;CK framework.</p>
+            </div>
+            <div class="tp" id="c2-tech">
+              <div class="sh">Attack Chain Timeline</div>
+              <div class="tl">
+                <div class="tl-item"><div class="tl-dot" style="background:#ff4a4a"></div><div class="tl-body"><div class="tl-phase">Phase 1 — Initial Access</div><div class="tl-title">RDP Brute Force — T1110.001</div><div class="tl-detail">Hydra used on Kali Linux to brute force RDP credentials on Windows Server. Successful logon achieved after multiple attempts.</div></div></div>
+                <div class="tl-item"><div class="tl-dot" style="background:#ffaa00"></div><div class="tl-body"><div class="tl-phase">Phase 2 — Discovery</div><div class="tl-title">System Discovery Commands — T1082</div><div class="tl-detail">whoami, ipconfig, net user, net group executed to enumerate the environment post-access.</div></div></div>
+                <div class="tl-item"><div class="tl-dot" style="background:#ff4a4a"></div><div class="tl-body"><div class="tl-phase">Phase 3 — Defense Evasion</div><div class="tl-title">Windows Defender Disabled — T1562.001</div><div class="tl-detail">Set-MpPreference -DisableRealtimeMonitoring $true executed via PowerShell to disable Defender before agent deployment.</div></div></div>
+                <div class="tl-item"><div class="tl-dot" style="background:#b080ff"></div><div class="tl-body"><div class="tl-phase">Phase 4 — Execution</div><div class="tl-title">Mythic Apollo Agent Deployed — T1059.001</div><div class="tl-detail">PowerShell used to download and execute Apollo agent (servicehost.exe) from Mythic C2 server. Agent masqueraded as legitimate Windows process.</div></div></div>
+                <div class="tl-item"><div class="tl-dot" style="background:#b080ff"></div><div class="tl-body"><div class="tl-phase">Phase 5 — C2</div><div class="tl-title">C2 Session Established — T1071.001</div><div class="tl-detail">Apollo agent connected back to Mythic C2 server. Active session confirmed in Mythic console. Full command and control established.</div></div></div>
+                <div class="tl-item"><div class="tl-dot" style="background:#ff4a4a"></div><div class="tl-body"><div class="tl-phase">Phase 6 — Exfiltration</div><div class="tl-title">File Exfiltrated — T1041</div><div class="tl-detail">passwords.txt downloaded from Windows Server via active C2 session. File transfer logged in Mythic console and Sysmon telemetry.</div></div></div>
+              </div>
+              <div class="sh">Investigation — Process GUID Correlation</div>
+              <div class="fitem" id="fi-c2-1">
+                <div class="fitem-head" onclick="toggleFitem('fi-c2-1')"><span class="fitem-arrow">▶</span><span class="fitem-text">Apollo agent identified via SHA-256 hash and original filename in Sysmon Event ID 1</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — query for process creation with Apollo agent filename</div>
+                  <div class="fitem-cmd">event.code: "1" AND winlog.event_data.OriginalFileName: "Apollo.exe"
+// Extract: SHA-256 hash, process GUID, parent process
+// SHA-256 submitted to VirusTotal for confirmation
+// Process GUID used to correlate all subsequent activity</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c2-2">
+                <div class="fitem-head" onclick="toggleFitem('fi-c2-2')"><span class="fitem-arrow">▶</span><span class="fitem-text">C2 network connections traced using process GUID from Apollo agent</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — correlate network connections to Apollo process GUID</div>
+                  <div class="fitem-cmd">event.code: "3" AND winlog.event_data.ProcessGuid: "[apollo_guid]"
+// Shows: destination IP (Mythic C2 server), port, timestamp
+// Confirms outbound C2 communication channel established</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c2-3">
+                <div class="fitem-head" onclick="toggleFitem('fi-c2-3')"><span class="fitem-arrow">▶</span><span class="fitem-text">File exfiltration confirmed via Sysmon file creation event correlated to C2 session</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — file operations correlated to Apollo process GUID</div>
+                  <div class="fitem-cmd">event.code: "11" AND winlog.event_data.ProcessGuid: "[apollo_guid]"
+// Shows: passwords.txt file access and download
+// Timestamp correlates with active C2 session window
+// Confirms data was accessed and transferred</div>
+                </div>
+              </div>
+              <div class="sh">MITRE ATT&amp;CK</div>
+              <table class="mtable">
+                <thead><tr><th>ID</th><th>Technique</th><th>Phase</th></tr></thead>
+                <tbody>
+                  <tr><td>T1110.001</td><td>Brute Force: Password Guessing</td><td>Initial Access</td></tr>
+                  <tr><td>T1082</td><td>System Information Discovery</td><td>Discovery</td></tr>
+                  <tr><td>T1562.001</td><td>Impair Defenses: Disable Security Tools</td><td>Defense Evasion</td></tr>
+                  <tr><td>T1059.001</td><td>PowerShell</td><td>Execution</td></tr>
+                  <tr><td>T1071.001</td><td>Application Layer Protocol: Web</td><td>C2</td></tr>
+                  <tr><td>T1041</td><td>Exfiltration Over C2 Channel</td><td>Exfiltration</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tp" id="c2-breach">
+              <p class="body-text">This was a controlled simulation — all activity was intentional. The following documents what a real incident response would look like if this attack chain was discovered in a production environment.</p>
+              <div class="sh">Immediate Containment Actions</div>
+              <div class="fitem" id="fi-c2-b1">
+                <div class="fitem-head" onclick="toggleFitem('fi-c2-b1')"><span class="fitem-arrow">▶</span><span class="fitem-text"><strong style="color:var(--amber)">Step 1:</strong> Isolate compromised host immediately using Elastic Defend</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Elastic Defend — isolate host from network</div>
+                  <div class="fitem-cmd"># In Kibana Security → Endpoints
+# Select compromised host → Actions → Isolate Host
+# This cuts all network connections except Elastic agent
+# Prevents further C2 communication and lateral movement
+# Host remains manageable via Elastic console</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c2-b2">
+                <div class="fitem-head" onclick="toggleFitem('fi-c2-b2')"><span class="fitem-arrow">▶</span><span class="fitem-text"><strong style="color:var(--amber)">Step 2:</strong> Kill C2 process and collect forensic evidence</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// PowerShell — terminate C2 agent and preserve evidence</div>
+                  <div class="fitem-cmd"># Get process details before killing
+Get-Process servicehost | Select-Object Id, Path, StartTime
+# Hash the executable for evidence
+Get-FileHash "C:\path\to\servicehost.exe" -Algorithm SHA256
+# Kill the process
+Stop-Process -Name "servicehost" -Force
+# Do NOT delete the file — preserve for forensics</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c2-b3">
+                <div class="fitem-head" onclick="toggleFitem('fi-c2-b3')"><span class="fitem-arrow">▶</span><span class="fitem-text"><strong style="color:var(--amber)">Step 3:</strong> Check for persistence mechanisms left by the attacker</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — check for persistence artifacts</div>
+                  <div class="fitem-cmd"># Scheduled tasks created during attack window
+event.code: "4698" AND @timestamp >= [attack_start_time]
+# New services installed
+event.code: "7045" AND @timestamp >= [attack_start_time]
+# Registry run keys modified
+event.code: "13" AND winlog.event_data.TargetObject: "*Run*"
+# New user accounts created
+event.code: "4720" AND @timestamp >= [attack_start_time]</div>
+                </div>
+              </div>
+              <div class="sh">Scope Determination</div>
+              <div class="step-box">
+                <div class="step-item"><strong>Check:</strong> Did the C2 agent attempt lateral movement to other hosts?</div>
+                <div class="step-item"><strong>Check:</strong> Were any credentials dumped (LSASS access — Event ID 4656)?</div>
+                <div class="step-item"><strong>Check:</strong> What data was exfiltrated — assess sensitivity and compliance impact</div>
+                <div class="step-item"><strong>If sensitive data exfiltrated:</strong> Legal and compliance notification required — escalate immediately</div>
+              </div>
+            </div>
+            <div class="tp" id="c2-ev">
+              <p class="body-text" style="margin-bottom:16px;">Evidence from the full attack chain simulation and subsequent investigation.</p>
+              <div class="ev-grid">
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/5z9BUMl.jpeg','Attack Diagram — Full C2 Chain')"><img src="https://i.imgur.com/5z9BUMl.jpeg" alt="Attack Diagram"></div><div class="ev-caption"><div class="ev-caption-title">Attack Diagram</div><div class="ev-caption-sub">Full 6-phase attack chain mapped in draw.io</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/F70KHGl.jpeg','Mythic C2 Server Initialized')"><img src="https://i.imgur.com/F70KHGl.jpeg" alt="Mythic Server"></div><div class="ev-caption"><div class="ev-caption-title">Mythic C2 Server</div><div class="ev-caption-sub">Server initialized with Apollo agent profile</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/OBrvihs.jpeg','C2 Session Established')"><img src="https://i.imgur.com/OBrvihs.jpeg" alt="C2 Session"></div><div class="ev-caption"><div class="ev-caption-title">C2 Session Active</div><div class="ev-caption-sub">Apollo agent connected — full C2 control established</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/Ry8Qbqk.jpeg','File Exfiltrated via C2')"><img src="https://i.imgur.com/Ry8Qbqk.jpeg" alt="File Exfiltrated"></div><div class="ev-caption"><div class="ev-caption-title">File Exfiltrated</div><div class="ev-caption-sub">passwords.txt downloaded via active C2 session</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/L80hlDC.jpeg','Kibana — Process Creation Query')"><img src="https://i.imgur.com/L80hlDC.jpeg" alt="Process Query"></div><div class="ev-caption"><div class="ev-caption-title">Process Creation Query</div><div class="ev-caption-sub">Event code 1 — Apollo.exe original filename detected</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/x9HsLVg.jpeg','Mythic C2 Alert Created')"><img src="https://i.imgur.com/x9HsLVg.jpeg" alt="C2 Alert"></div><div class="ev-caption"><div class="ev-caption-title">C2 Detection Alert</div><div class="ev-caption-sub">Kibana alert fires on Apollo agent process creation</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/VLRO2zS.jpeg','Suspicious Activity Dashboard')"><img src="https://i.imgur.com/VLRO2zS.jpeg" alt="Suspicious Dashboard"></div><div class="ev-caption"><div class="ev-caption-title">Suspicious Activity Dashboard</div><div class="ev-caption-sub">PowerShell, CMD, network connections, Defender disabled</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/77UWFgc.jpeg','SHA-256 Hash Extracted')"><img src="https://i.imgur.com/77UWFgc.jpeg" alt="SHA256 Hash"></div><div class="ev-caption"><div class="ev-caption-title">SHA-256 Hash Extracted</div><div class="ev-caption-sub">Apollo agent hash for VirusTotal submission</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CASE 3: ELASTIC DEFEND EDR -->
+      <div class="case-card reveal" id="c3">
+        <div class="case-head" onclick="toggleCase('c3')">
+          <div style="flex:1">
+            <div class="case-tag">Case Study 03 — EDR Response</div>
+            <div class="case-title">Elastic Defend EDR — Malware Detection &amp; Host Isolation</div>
+            <div class="badges">
+              <span class="badge b-red">Critical</span>
+              <span class="badge b-purple">Elastic Defend</span>
+              <span class="badge b-amber">T1204 · T1562</span>
+              <span class="badge b-green">Blocked &amp; Isolated</span>
+            </div>
+          </div>
+          <span class="case-chevron">▼</span>
+        </div>
+        <div class="case-body">
+          <div class="tab-bar">
+            <button class="tb on" onclick="switchTab(event,'c3','exec')">Executive Summary</button>
+            <button class="tb" onclick="switchTab(event,'c3','tech')">Technical Deep Dive</button>
+            <button class="tb" onclick="switchTab(event,'c3','breach')">If Bypass Attempted</button>
+            <button class="tb" onclick="switchTab(event,'c3','ev')">Evidence</button>
+          </div>
+          <div class="tab-content">
+            <div class="tp on" id="c3-exec">
+              <div class="stats-row">
+                <div class="sbox r"><div class="sbox-num">1</div><div class="sbox-lab">Malware blocked</div></div>
+                <div class="sbox"><div class="sbox-num">SHA256</div><div class="sbox-lab">Hash captured</div></div>
+                <div class="sbox g"><div class="sbox-num">✓</div><div class="sbox-lab">Host isolated</div></div>
+                <div class="sbox g"><div class="sbox-num">0</div><div class="sbox-lab">Execution allowed</div></div>
+              </div>
+              <p class="body-text">Elastic Defend EDR was deployed on the Windows Server endpoint to provide real-time detection and prevention capabilities. When a malicious file (mydfir-30.exe) was executed on the host, Elastic Defend immediately blocked the execution, generated a prevention alert, and provided full telemetry including the file hash, path, parent process, and execution context.</p>
+              <p class="body-text">The host isolation feature was demonstrated — cutting all network connections except the Elastic agent management channel — allowing the analyst to maintain visibility and control of the compromised endpoint while preventing further attacker activity or lateral movement.</p>
+              <div class="find-tag">ANALYST FINDING</div>
+              <p class="body-text">Malicious file execution blocked at the endpoint before any payload executed. SHA-256 hash captured and documented. Host successfully isolated via Elastic Defend console. EDR telemetry provided full context for investigation without requiring manual log analysis.</p>
+            </div>
+            <div class="tp" id="c3-tech">
+              <div class="sh">EDR Prevention Event Details</div>
+              <div class="code-block"># Elastic Defend prevention alert fields:
+file.hash.sha256: [malware_hash]
+file.path: C:\Users\[user]\Downloads\mydfir-30.exe
+process.parent.name: explorer.exe
+event.action: "prevented"
+agent.hostname: [windows_server]
+@timestamp: [detection_time]</div>
+              <div class="sh">Investigation Findings — click to expand analyst actions</div>
+              <div class="fitem" id="fi-c3-1">
+                <div class="fitem-head" onclick="toggleFitem('fi-c3-1')"><span class="fitem-arrow">▶</span><span class="fitem-text">Malicious file blocked — SHA-256 hash extracted and submitted to VirusTotal</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// PowerShell — hash the blocked file for threat intel</div>
+                  <div class="fitem-cmd">Get-FileHash "C:\Users\user\Downloads\mydfir-30.exe" -Algorithm SHA256
+# Submit hash to VirusTotal: https://virustotal.com
+# Check detection ratio across 70+ AV engines
+# Identify malware family and behavior indicators</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c3-2">
+                <div class="fitem-head" onclick="toggleFitem('fi-c3-2')"><span class="fitem-arrow">▶</span><span class="fitem-text">Host isolated via Elastic Defend — network severed, agent connection maintained</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — isolate host via Elastic Defend console</div>
+                  <div class="fitem-cmd"># Security → Endpoints → Select host
+# Actions → Isolate Host
+# Confirm isolation — status changes to "Isolated"
+# All network traffic blocked EXCEPT:
+#   - Elastic agent management (port 443 to Fleet)
+# Analyst can still run commands via Osquery or response actions</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c3-3">
+                <div class="fitem-head" onclick="toggleFitem('fi-c3-3')"><span class="fitem-arrow">▶</span><span class="fitem-text">Telemetry reviewed — file path, parent process, and user context documented</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — query for full EDR event context</div>
+                  <div class="fitem-cmd">event.action: "prevented" AND agent.hostname: "[hostname]"
+// Review: file.path, file.hash.sha256
+// Review: process.parent.name — how was it launched?
+// Review: user.name — which account attempted execution?
+// Review: @timestamp — correlate with other events</div>
+                </div>
+              </div>
+              <div class="sh">MITRE ATT&amp;CK</div>
+              <table class="mtable">
+                <thead><tr><th>ID</th><th>Technique</th><th>Evidence</th></tr></thead>
+                <tbody>
+                  <tr><td>T1204.002</td><td>User Execution: Malicious File</td><td>User attempted to execute mydfir-30.exe from Downloads folder</td></tr>
+                  <tr><td>T1562.001</td><td>Impair Defenses</td><td>Defender disabled prior to execution attempt — EDR still caught it</td></tr>
+                  <tr><td>T1055</td><td>Process Injection (suspected)</td><td>Malware behavior profile suggests injection capability</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="tp" id="c3-breach">
+              <p class="body-text">Elastic Defend blocked this execution. The following documents what would have happened if EDR was not deployed or was bypassed.</p>
+              <div class="sh">If EDR Was Not Present or Bypassed</div>
+              <div class="ioc-box">
+                <div class="ioc-item">▶ Malware executes — new process spawned under user context</div>
+                <div class="ioc-item">▶ Sysmon Event ID 1 — process creation with suspicious parent (explorer.exe → malware.exe)</div>
+                <div class="ioc-item">▶ Outbound network connection from malware process — C2 callback</div>
+                <div class="ioc-item">▶ Persistence mechanism installed — scheduled task or registry run key</div>
+                <div class="ioc-item">▶ Credential access attempted — LSASS process access Event ID 4656</div>
+              </div>
+              <div class="sh">Defense-in-Depth Response</div>
+              <div class="fitem" id="fi-c3-b1">
+                <div class="fitem-head" onclick="toggleFitem('fi-c3-b1')"><span class="fitem-arrow">▶</span><span class="fitem-text"><strong style="color:var(--amber)">Layer 1:</strong> Elastic Defend blocks at execution — first line of defense</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Elastic Defend prevention policy — malware prevention enabled</div>
+                  <div class="fitem-cmd"># Policy settings:
+# Malware protection: Prevent (not just detect)
+# Memory threat protection: Prevent
+# Ransomware protection: Prevent
+# Behavioral protections: Enabled
+# These settings block execution before any payload runs</div>
+                </div>
+              </div>
+              <div class="fitem" id="fi-c3-b2">
+                <div class="fitem-head" onclick="toggleFitem('fi-c3-b2')"><span class="fitem-arrow">▶</span><span class="fitem-text"><strong style="color:var(--amber)">Layer 2:</strong> If execution succeeds — detect via Sysmon behavioral indicators</span></div>
+                <div class="fitem-body">
+                  <div class="fitem-cmd-label">// Kibana — behavioral detection if EDR bypassed</div>
+                  <div class="fitem-cmd"># Unusual parent-child process relationships
+event.code: "1" AND winlog.event_data.ParentImage: "*explorer*"
+  AND winlog.event_data.Image: "*Temp*" OR "*Downloads*"
+# Outbound connections from new processes
+event.code: "3" AND NOT winlog.event_data.Image: "*trusted*"
+# These create the detection net if prevention fails</div>
+                </div>
+              </div>
+            </div>
+            <div class="tp" id="c3-ev">
+              <p class="body-text" style="margin-bottom:16px;">Evidence from Elastic Defend deployment, malware prevention events, and host isolation.</p>
+              <div class="ev-grid">
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/jYip6R0.jpeg','Elastic Defend — Malware Blocked')"><img src="https://i.imgur.com/jYip6R0.jpeg" alt="Malware Blocked"></div><div class="ev-caption"><div class="ev-caption-title">Malware Blocked</div><div class="ev-caption-sub">Elastic Defend prevention alert — mydfir-30.exe stopped</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/IhA8ukM.jpeg','Elastic Defend — File Hash and Telemetry')"><img src="https://i.imgur.com/IhA8ukM.jpeg" alt="EDR Telemetry"></div><div class="ev-caption"><div class="ev-caption-title">EDR Telemetry</div><div class="ev-caption-sub">File hash, path, parent process captured</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/htj8pnY.jpeg','Host Isolation — Network Severed')"><img src="https://i.imgur.com/htj8pnY.jpeg" alt="Host Isolated"></div><div class="ev-caption"><div class="ev-caption-title">Host Isolated</div><div class="ev-caption-sub">Network severed — Elastic agent maintained</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/9FOaHUI.jpeg','Sysmon and Defender Integration')"><img src="https://i.imgur.com/9FOaHUI.jpeg" alt="Sysmon Integration"></div><div class="ev-caption"><div class="ev-caption-title">Sysmon Integration</div><div class="ev-caption-sub">Custom event channels configured in Elasticsearch</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/e2xwm2E.jpeg','osTicket — EDR Alert Ticket')"><img src="https://i.imgur.com/e2xwm2E.jpeg" alt="EDR Ticket"></div><div class="ev-caption"><div class="ev-caption-title">osTicket — EDR Alert</div><div class="ev-caption-sub">Auto-generated incident from Elastic Defend alert</div></div></div>
+                <div class="ev-slot"><div class="ev-img-placeholder" onclick="openLightbox('https://i.imgur.com/VLRO2zS.jpeg','Suspicious Activity Dashboard')"><img src="https://i.imgur.com/VLRO2zS.jpeg" alt="Dashboard"></div><div class="ev-caption"><div class="ev-caption-title">Suspicious Activity Dashboard</div><div class="ev-caption-sub">Real-time visibility across all endpoint activity</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact" style="background:var(--bg-card);border-top:1px solid var(--border)">
+  <div class="sec-inner">
+    <div class="sec-eye reveal">Get In Touch</div>
+    <div class="sec-title reveal">Contact</div>
+    <div class="sec-sub reveal">Open to SOC Analyst, Security Operations, and Threat Detection roles.</div>
+    <div class="contact-strip reveal">
+      <a href="mailto:demondmack2@gmail.com" class="contact-card"><div class="cc-label">Email</div><div class="cc-value">demondmack2@gmail.com</div></a>
+      <a href="https://github.com/DemondMack" target="_blank" class="contact-card"><div class="cc-label">GitHub</div><div class="cc-value">github.com/DemondMack</div></a>
+      <a href="https://linkedin.com/in/demondmack" target="_blank" class="contact-card"><div class="cc-label">LinkedIn</div><div class="cc-value">linkedin.com/in/demondmack</div></a>
+      <a href="index.html" class="contact-card"><div class="cc-label">Main Portfolio</div><div class="cc-value">demondmack-security.com</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Demond Mack // SOC Analyst Portfolio // demondmack-security.com</p>
+</footer>
+
+<script>
+function openLightbox(src,caption){
+  document.getElementById('lightbox-img').src=src;
+  document.getElementById('lightbox-caption').textContent=caption;
+  document.getElementById('lightbox').classList.add('show');
+}
+function closeLightbox(e){
+  if(e.target===document.getElementById('lightbox')){
+    document.getElementById('lightbox').classList.remove('show');
+  }
+}
+function switchTab(e,caseId,tabId){
+  e.stopPropagation();
+  const card=document.getElementById(caseId);
+  card.querySelectorAll('.tp').forEach(p=>p.classList.remove('on'));
+  card.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  const pane=document.getElementById(caseId+'-'+tabId);
+  if(pane)pane.classList.add('on');
+  e.currentTarget.classList.add('on');
+}
+function toggleCase(id){document.getElementById(id).classList.toggle('open');}
+function toggleFitem(id){document.getElementById(id).classList.toggle('open');}
+
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});
+},{threshold:0.06});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+</script>
+</body>
+</html>
